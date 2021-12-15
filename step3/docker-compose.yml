@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  web-static:
+    build: ../step1
+    expose: 
+      - "80"
+  web-dynamic:
+    build: ../step2
+    expose:
+      - "80"
+
