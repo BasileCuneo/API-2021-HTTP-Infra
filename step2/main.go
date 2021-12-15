@@ -28,7 +28,7 @@ func main() {
 			//gen an id
 			strId := string(genId())
 			//set the cookie
-			c.SetCookie("id", strId, 3600, "/", "", false, false)
+			c.SetCookie("id", strId, 120, "/", "", false, false)
 			idCpt[strId] = 0
 			c.JSON(200, gin.H{
 				"message": "first time uh ?",
