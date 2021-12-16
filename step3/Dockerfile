@@ -1,3 +1,4 @@
-FROM httpd:2.4
+FROM nginx:1.21.4
 
-ENTRYPOINT ["/bin/sh"]
+COPY nginx.conf /etc/nginx/nginx.conf
+

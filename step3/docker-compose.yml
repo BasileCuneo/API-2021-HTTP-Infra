@@ -8,4 +8,8 @@ services:
     build: ../step2
     expose:
       - "80"
+  reverse-proxy:
+    build: .
+    ports:
+      - "80:80"
 
