@@ -1,0 +1,32 @@
+version: "3.9"
+services:
+  web-static:
+    build: ../step1
+    expose: 
+      - "80"
+    labels:
+      - "traefik.http.routers.web-static.rule=PathPrefix(`/`)"
+
+  web-dynamic:
+    build: ../step2
+    expose:
+      - "80"
+    labels:
+      #create http router web-dynamic with a rul of PathPrefix(`/dyn/`)
+      - "traefik.http.routers.web-dynamic.rule=PathPrefix(`/dyn/`)"
+      #create the middleware stripPrefix that strips /dyn/ from the request path
+      - "traefik.http.middlewares.stripPrefix.stripprefix.prefixes=/dyn/"
+      #register the middleware stripPrefix to the router web-dynamic
+      - "traefik.http.routers.web-dynamic.middlewares=stripPrefix"
+      - "traefik.http.services.web-dynamic.loadbalancer.sticky.cookie.name=session"
+
+
+  reverse-proxy:
+    image: traefik:v2.5
+    command: --api.insecure=true --providers.docker
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
