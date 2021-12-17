@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Docker Control Center!</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+
+</head>
+
+<body>
+    <section class="section ">
+        <div class="container">
+            <h1 class="title is-size-2">
+                Statistiques :
+            </h1>
+            <hr>
+            <div class="columns has-text-centered is-centered">
+                <div class="column is-narrow">
+                    <div class="card">
+                        <div class="card-header is-size-5">
+                            <p class="card-header-title ">
+                                Nombre de containers
+                            </p>
+                        </div>
+                        <div class="card-content has-background-grey-lighter">
+                            <div class="content  has-text-black is-size-4">
+                                {{.nContainers}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-narrow">
+                    <div class="card">
+                        <div class="card-header is-size-5">
+                            <p class="card-header-title ">
+                                Nombre d'images utilisées
+                            </p>
+                        </div>
+                        <div class="card-content has-background-grey-lighter">
+                            <div class="content  has-text-black is-size-4">
+                                {{.nImages}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-narrow">
+                    <div class="card">
+                        <div class="card-header is-size-5">
+                            <p class="card-header-title">
+                                Nombre de routes
+                            </p>
+                        </div>
+                        <div class="card-content has-background-grey-lighter">
+                            <div class="content has-text-black is-size-4">
+                                {{.nRoutes}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-narrow ">
+                    <div class="card">
+                        <div class="card-header is-size-5">
+                            <p class="card-header-title">
+                                Heures de travail
+                            </p>
+                        </div>
+                        <div class="card-content has-background-grey-lighter">
+                            <div class="content has-text-black is-size-4">
+                                trop
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="section">
+        <div class="container">
+            <h1 class="title is-size-2">
+                Images :
+        </div>
+        <hr>
+
+        <div class="columns is-centered">
+            
+            <div class="column has-text-centered is-narrow">
+                <div class="card">
+                    <div class="card-header is-size-5 has-text-centered">
+                        <p class="card-header-title has-text-centered">
+                            #image id or name if available {{.images.n}}
+                        </p>
+                    </div>
+                    <footer class="card-footer">
+                        <a href="#" class="card-footer-item">
+                            <span>
+                                Scale down
+                            </span>
+                        </a>
+                        <a href="#" class="card-footer-item">
+                            <span>
+                                Scale up
+                            </span>
+                        </a>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="section">
+        <div class="container">
+            <h1 class="title is-size-2">
+                Containers :
+            </h1>
+        </div>
+        <hr>
+        <div class="columns is-centered">
+            {{range $i, $c := .containers}}
+            <div class="column has-text-centered is-narrow">
+                <div class="card">
+                    <div class="card-header is-size-5 has-text-centered">
+                        <p class="card-header-title has-text-centered">
+                            {{index $c.Names 0 }}...
+                        </p>
+                    </div>
+                    <div class="card-content ">
+                        <div class="content has-text-black is-size-4">
+                            {{$c.State}}
+                            
+                        </div>
+                        <footer class="card-footer">
+                            <a href="#" class="card-footer-item">
+                                <span>
+                                    Start
+                                </span>
+                            </a>
+                            <a href="#" class="card-footer-item">
+                                <span>
+                                    Stop
+                                </span>
+                            </a>
+                            <a href="#" class="card-footer-item is-danger">
+                                <span>
+                                    Remove
+                                </span>
+                            </a>
+                        </footer>
+                    </div>
+                </div>
+            </div>
+            {{end}}
+        </div>
+    </section>
+    <footer class="footer has-background-grey-light">
+        <div class="content has-text-centered has-text-white is-size-3">
+            Admin Panel by <a href="//github.com\/jorisSchaller">@jsch</a>
+        </div>
+    </footer>
+</body>
+
+</html>
