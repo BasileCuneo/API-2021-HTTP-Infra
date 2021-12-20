@@ -3,6 +3,8 @@ package main
 //import gin-gonic
 import (
 	"context"
+	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/docker/docker/api/types"
@@ -10,15 +12,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Img struct {
-	ID         string   `json:"ID"`
-	Containers int64    `json:"Containers"`
-	RepoTags   []string `json:"rRepoTags"`
+func remove(s []types.ImageSummary, i int) []types.ImageSummary {
+	s[i] = s[len(s)-1]
+	return s[:len(s)-1]
 }
 
 var cli *client.Client
 
-func getContainerData() ([]types.Container, []Img) {
+func getData() ([]types.Container, []types.ImageSummary) {
 	ctx := context.Background()
 	var err error
 	cli, err = client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
@@ -38,55 +39,93 @@ func getContainerData() ([]types.Container, []Img) {
 	if err != nil {
 		panic(err)
 	}
-	images := make([]Img, 0)
-	for k, v := range info {
-		images = append(images, Img{ID: k, Containers: v, RepoTags: []string{}})
+	//because Docker Engine is shitty
+	for i, img := range imgList {
+		if img.RepoTags[0] == "<none>:<none>" {
+			imgList = remove(imgList, i)
+		}
 	}
-	for _, imgL := range imgList {
-		for idx, img := range images {
-			if img.ID == imgL.ID {
-				images[idx].RepoTags = imgL.RepoTags
+	//because Docker Engine is shitty and has bugs and doesn't count container of new images --'
+	for _, container := range containers {
+		for _, img := range imgList {
+			if container.ImageID == img.ID {
+				img.Containers++
+				//because we found the images container, we can stop the loop
+				break
 			}
 		}
 	}
 
-	return containers, images
+	return containers, imgList
 }
 
 //var urlPrefix = os.Getenv("PREFIX")
 func indexHandler(c *gin.Context) {
 	data := make(map[string]interface{})
-	containers, images := getContainerData()
+	containers, images := getData()
 	data["nRoutes"] = 15
 	data["nContainers"] = len(containers)
 	data["containers"] = containers
 	data["nImages"] = len(images)
 	data["images"] = images
+	data["prefix"] = ""
 	c.HTML(200, "index.tmpl", data)
 }
 func stopHandler(c *gin.Context) {
-	id := c.Param(":id")
-	println("Stopping " + id)
-	//cli.ContainerStop(context.Background(), id, nil)
-	c.JSON(http.StatusOK, gin.H{})
+	id := c.Param("id")
+	fmt.Printf("Stopping %q", id)
+	err := cli.ContainerStop(context.Background(), id, nil)
+	if err != nil {
+		c.HTML(http.StatusOK, "apiFailure.tmpl", gin.H{
+			"errorMessage": err.Error(),
+		})
+
+	} else {
+		c.HTML(http.StatusOK, "apiSuccess.tmpl", gin.H{
+			"action": "Arret",
+			"what":   id,
+		})
+	}
 }
 func scaleUpHandler(c *gin.Context) {
-	id := c.Param(":id")
+	id := c.Param("id")
 	println("Scaling up " + id)
-	c.Next()
+	err := errors.New("not implemented")
+	if err != nil {
+		c.HTML(http.StatusOK, "apiFailure.tmpl", gin.H{
+			"errorMessage": err.Error(),
+		})
+
+	} else {
+		c.HTML(http.StatusOK, "apiSuccess.tmpl", gin.H{
+			"action": "Scale up",
+			"what":   id,
+		})
+	}
 }
 func scaleDownHandler(c *gin.Context) {
-	id := c.Param(":id")
-	println("Scaling up " + id)
-	c.JSON(http.StatusOK, gin.H{})
+	id := c.Param("id")
+	println("Scaling down " + id)
+	err := errors.New("not implemented scaling up the image ")
+	if err != nil {
+		c.HTML(http.StatusOK, "apiFailure.tmpl", gin.H{
+			"errorMessage": err.Error(),
+		})
+	} else {
+		c.HTML(http.StatusOK, "apiSuccess.tmpl", gin.H{
+			"action": "Scale down",
+			"what":   id,
+		})
+	}
 }
+
 func main() {
 
 	r := gin.Default()
 	r.LoadHTMLGlob("templates/*.tmpl")
 	r.GET("/", indexHandler)
-	r.POST("/panel/stop/:id", stopHandler)
-	r.POST("/panel/scaleup/:id", scaleUpHandler)
-	r.POST("/panel/scaledown/:id", scaleDownHandler)
+	r.GET("/panel/stop/:id", stopHandler)
+	r.GET("/panel/scaleup/:id", scaleUpHandler)
+	r.GET("/panel/scaledown/:id", scaleDownHandler)
 	r.Run(":9090")
 }
