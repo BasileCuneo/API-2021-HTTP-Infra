@@ -11,6 +11,10 @@
         function redirect() {
             window.location.href = "/";
         }
+        setInterval(function(){
+            var n = document.getElementById("time");
+            n.innerHTML = n.innerHTML - 1;
+        },1000);
     </script>
 </head>
 
@@ -20,11 +24,12 @@
           <p class="title has-text-success">
             {{.action}} de {{.what}} avec succès !
           </p>
+          <hr>
           <p class="subtitle">
-            Vous allez être redirigé vers la page d'accueil dans 4 secondes.
+            Vous allez être redirigé vers la page d'accueil dans <span id="time">4</span> secondes.
           </p>
         </div>
-        <hr>
+        
       </section>
 </body>
 

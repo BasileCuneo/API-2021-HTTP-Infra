@@ -7,17 +7,32 @@
     <title>Docker Control Center!</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
     <script>
+        setInterval(function(){
+            var n = document.getElementById("time");
+            n.innerHTML = n.innerHTML - 1;
+        },1000);
         setTimeout(redirect, 5000);
         function redirect() {
             window.location.href = "/";
         }
+        
     </script>
 </head>
 
 <body>
-    <h1>
-        Désoler, une erreur s'est produite. {{.errorMessage}}
-    </h1>
+    <section class="hero">
+        <div class="hero-body has-text-centered">
+          <p class="title has-text-failure">
+            Désoler, une erreur s'est produite !
+            <br>
+            {{.errorMessage}}
+          </p>
+          <hr>
+          <p class="subtitle">
+            Vous allez être redirigé vers la page d'accueil dans <span id="time">5</span> secondes.
+          </p>
+        </div>
+      </section>
 </body>
 
 </html>

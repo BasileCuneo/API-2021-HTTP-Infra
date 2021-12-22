@@ -35,7 +35,7 @@
                     <div class="card">
                         <div class="card-header is-size-5">
                             <p class="card-header-title ">
-                                Nombre d'images utilisées
+                                Nombre d'images
                             </p>
                         </div>
                         <div class="card-content has-background-grey-lighter">
@@ -101,11 +101,26 @@
                         {{$c.State}}
                             </div>
                             <footer class="card-footer">
+                                {{ if eq $c.State "running"}}
                                 <a href={{index $c.Names 0 | printf "%s%s%s" $.prefix "panel/stop" }} class="card-footer-item">
                                     <span>
                                         Stop
                                     </span>
                                 </a>
+                                {{ else if eq $c.State "exited"}}
+                                <a href={{index $c.Names 0 | printf "%s%s%s" $.prefix "panel/start" }} class="card-footer-item">
+                                    <span>
+                                        Start
+                                    </span>
+                                </a>
+                                <a href={{index $c.Names 0 | printf "%s%s%s" $.prefix "panel/remove" }} class="card-footer-item">
+                                    <span>
+                                        Remove
+                                    </span>
+                                </a>
+                                {{else}}
+                                        
+                                {{end}}
                             </footer>
                         </div>
                     </div>
