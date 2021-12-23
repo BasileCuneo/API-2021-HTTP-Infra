@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/docker/docker/api/types"
+
 	"github.com/docker/docker/client"
 	"github.com/gin-gonic/gin"
 )
@@ -117,6 +118,7 @@ func removeHandler(c *gin.Context) {
 			"what":   id,
 		})
 	}
+
 }
 func increment(name string, imgId string) string {
 	_, resp := getData()
@@ -164,8 +166,8 @@ func scaleUpHandler(c *gin.Context) {
 		})
 		return
 	}
-	//	ctx context.Context, config *container.Config, hostConfig *container.HostConfig, networkingConfig *network.NetworkingConfig, platform *v1.Platform, containerName string
 	id, err := cloneContainer(sample)
+
 	if err != nil {
 		c.HTML(http.StatusOK, "apiFailure.tmpl", gin.H{
 			"errorMessage": err.Error(),
@@ -201,13 +203,7 @@ func scaleDownHandler(c *gin.Context) {
 		return
 
 	}
-	// resp, err := cli.ContainerInspect(context.Background(), imageId)
-	// if err != nil {
-	// 	c.HTML(http.StatusOK, "apiFailure.tmpl", gin.H{
-	// 		"errorMessage": err.Error(),
-	// 	})
-	// 	return
-	// }
+
 	cli.ContainerRemove(context.Background(), sample.ID, types.ContainerRemoveOptions{RemoveVolumes: true, RemoveLinks: false, Force: true})
 	if err != nil {
 		c.HTML(http.StatusOK, "apiFailure.tmpl", gin.H{
