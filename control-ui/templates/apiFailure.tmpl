@@ -4,20 +4,26 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Docker Control Center!</title>
+    <title>Failure</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
-    <script>
-        setTimeout(redirect, 5000);
-        function redirect() {
-            window.location.href = "/";
-        }
-    </script>
 </head>
 
 <body>
-    <h1>
-        Désoler, une erreur s'est produite. {{.errorMessage}}
-    </h1>
+    <section class="hero">
+        <div class="hero-body has-text-centered">
+          <p class="title has-text-danger">
+            Désoler, une erreur s'est produite !
+            <br>
+            
+          </p>
+          <hr>
+          <p class="subtitle">
+            {{.errorMessage}}
+          </p>
+          <p class="subtitle has-text-centered is-centered">
+            <a href="/">Retourner à l'accueil</a>
+        </div>
+      </section>
 </body>
 
 </html>
