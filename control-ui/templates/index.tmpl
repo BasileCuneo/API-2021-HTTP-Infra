@@ -35,7 +35,7 @@
                     <div class="card">
                         <div class="card-header is-size-5">
                             <p class="card-header-title ">
-                                Nombre d'images utilisées
+                                Nombre d'images
                             </p>
                         </div>
                         <div class="card-content has-background-grey-lighter">
@@ -79,74 +79,91 @@
     <section class="section">
         <div class="container">
             <h1 class="title is-size-2">
-                Images :
-        </div>
-        <hr>
-
-        <div class="columns is-centered">
-            
-            <div class="column has-text-centered is-narrow">
-                <div class="card">
-                    <div class="card-header is-size-5 has-text-centered">
-                        <p class="card-header-title has-text-centered">
-                            #image id or name if available {{.images.n}}
-                        </p>
-                    </div>
-                    <footer class="card-footer">
-                        <a href="#" class="card-footer-item">
-                            <span>
-                                Scale down
-                            </span>
-                        </a>
-                        <a href="#" class="card-footer-item">
-                            <span>
-                                Scale up
-                            </span>
-                        </a>
-                    </footer>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section class="section">
-        <div class="container">
-            <h1 class="title is-size-2">
                 Containers :
             </h1>
         </div>
         <hr>
-        <div class="columns is-centered">
+        <div class="columns is-centered is-multiline">
             {{range $i, $c := .containers}}
             <div class="column has-text-centered is-narrow">
                 <div class="card">
                     <div class="card-header is-size-5 has-text-centered">
                         <p class="card-header-title has-text-centered">
-                            {{index $c.Names 0 }}...
+                            {{index $c.Names 0 }}
                         </p>
                     </div>
-                    <div class="card-content ">
-                        <div class="content has-text-black is-size-4">
-                            {{$c.State}}
-                            
+                    <div class="card-content">
+                        {{if eq $c.State "running"}}
+                            <div class="content has-text-black is-size-4 has-background-success">
+                        {{ else }}
+                            <div class="content has-text-black is-size-4 has-background-light">
+                        {{end}}
+                        {{$c.State}}
+                            </div>
+                            <footer class="card-footer">
+                                {{ if eq $c.State "running"}}
+                                <a href={{index $c.Names 0 | printf "%s%s%s" $.prefix "panel/stop" }} class="card-footer-item">
+                                    <span>
+                                        Stop
+                                    </span>
+                                </a>
+                                {{ else if eq $c.State "exited" "created"}}
+                                <a href={{index $c.Names 0 | printf "%s%s%s" $.prefix "panel/start" }} class="card-footer-item">
+                                    <span>
+                                        Start
+                                    </span>
+                                </a>
+                                <a href={{index $c.Names 0 | printf "%s%s%s" $.prefix "panel/remove" }} class="card-footer-item">
+                                    <span>
+                                        Remove
+                                    </span>
+                                </a>
+                                {{else}}
+                                        
+                                {{end}}
+                            </footer>
                         </div>
-                        <footer class="card-footer">
-                            <a href="#" class="card-footer-item">
-                                <span>
-                                    Start
-                                </span>
-                            </a>
-                            <a href="#" class="card-footer-item">
-                                <span>
-                                    Stop
-                                </span>
-                            </a>
-                            <a href="#" class="card-footer-item is-danger">
-                                <span>
-                                    Remove
-                                </span>
-                            </a>
-                        </footer>
                     </div>
+                </div>
+                {{end}}
+            </div>
+    </section>
+    <section class="section">
+        <div class="container">
+            <h1 class="title is-size-2">
+                Images :
+        </div>
+        <hr>
+
+        <div class="columns is-centered is-multiline">
+            {{range $i, $img := .images}}
+
+            <div class="column has-text-centered is-narrow">
+                <div class="card">
+                    <div class="card-header is-size-5 has-text-centered">
+                        <p class="card-header-title has-text-centered">
+                            {{ if len $img.RepoTags}}
+                            {{index $img.RepoTags 0}}
+                            {{ else }}
+                            {{$img.ID}}
+                            {{end}}
+                        </p>
+                        <p class="card-header-title is-size-5 has-text-right">
+                            {{$img.Containers}}
+                        </p>
+                    </div>
+                    <footer class="card-footer">
+                        <a href={{ printf "%s%s%s" $.prefix "panel/scaledown/" $img.ID }} class="card-footer-item">
+                            <span>
+                                Scale down
+                            </span>
+                        </a>
+                        <a href={{ printf "%s%s%s" $.prefix "panel/scaleup/" $img.ID }} class="card-footer-item">
+                            <span>
+                                Scale up
+                            </span>
+                        </a>
+                    </footer>
                 </div>
             </div>
             {{end}}
