@@ -1,1 +1,1 @@
-step 3 is already dynamic using docker-compose
+Modification de l'étape 1 directement afin de ne pas avoir de dupplication de code, merci de lire la [documentation](../documentation.md)

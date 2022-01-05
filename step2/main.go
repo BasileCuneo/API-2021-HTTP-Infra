@@ -1,55 +1,3 @@
-// package main
-
-// import (
-// 	"encoding/base64"
-// 	"math/rand"
-// 	"strconv"
-// 	"time"
-
-// 	"github.com/gin-gonic/gin"
-// )
-
-// func genId() string {
-// 	token := make([]byte, 64)
-// 	rand.Seed(time.Now().UnixNano())
-// 	if _, err := rand.Read(token); err != nil {
-// 		// from the documentation : It always returns len(p) and a nil error.
-// 		return base64.StdEncoding.EncodeToString(token)
-// 	}
-// 	return base64.StdEncoding.EncodeToString(token)
-// }
-// func main() {
-// 	r := gin.Default()
-// 	idCpt := make(map[string]int)
-// 	r.GET("/", func(c *gin.Context) {
-// 		userId, err := c.Cookie("id")
-// 		//if  cookie is not set
-// 		if err != nil {
-// 			//gen an id
-// 			strId := string(genId())
-// 			//set the cookie
-// 			c.SetCookie("id", strId, 120, "/", "", false, false)
-// 			idCpt[strId] = 0
-// 			c.JSON(200, gin.H{
-// 				"message": "first time uh ?",
-// 			})
-// 			return
-// 		}
-// 		timeViewed, ok := idCpt[userId]
-// 		//the user's cookie is set
-// 		if ok {
-// 			c.JSON(200, gin.H{
-// 				"message": "vous avez vu cette page " + strconv.Itoa(timeViewed+1) + " fois",
-// 			})
-// 			idCpt[userId]++
-// 		} else {
-// 			c.JSON(200, gin.H{
-// 				"message": "Really ?",
-// 			})
-// 		}
-// 	})
-// 	r.Run(":80") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
-// }
 package main
 
 import (
@@ -57,6 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+const MAX_PERSON = 10
 
 type Person struct {
 	Firstname string   `json:"firstname"` //json binding for the struct
@@ -74,7 +24,7 @@ func genPerson() Person {
 	skills := []string{"Go", "Python", "Java", "C++", "C#", "PHP", "Ruby", "Latex", "HTML", "CSS", "SQL", "NoSQL", "Linux", "Windows", "MacOS", "Android", "iOS"}
 	//shuflling the arrays
 	for i := range skills {
-		j := rand.Intn(i + 1)
+		j := rand.Intn(i + 1) // + 1 because i+1 is not inclusive
 		skills[i], skills[j] = skills[j], skills[i]
 	}
 	for i := range hobby {
@@ -102,7 +52,7 @@ func main() {
 	//register a route with a handler (lambda)
 	r.GET("/", func(c *gin.Context) {
 		users := []Person{}
-		n := rand.Intn(10)
+		n := rand.Intn(MAX_PERSON)
 		for i := 0; i < n; i++ {
 			users = append(users, genPerson())
 		}

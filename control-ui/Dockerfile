@@ -4,11 +4,12 @@ WORKDIR /app
 
 COPY go.mod ./
 COPY go.sum ./
-
 RUN go mod download
+
+copy templates/* ./templates/
 
 COPY *.go ./
 
-RUN go build -o /dynamic-app
+RUN go build -o /control
 
-ENTRYPOINT ["/dynamic-app"]
+ENTRYPOINT ["/control"]

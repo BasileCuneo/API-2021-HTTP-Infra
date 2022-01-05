@@ -102,18 +102,18 @@
                             </div>
                             <footer class="card-footer">
                                 {{ if eq $c.State "running"}}
-                                <a href={{index $c.Names 0 | printf "%s%s%s" $.prefix "panel/stop" }} class="card-footer-item">
+                                <a href={{index $c.Names 0 | printf "%s%s" "panel/stop" }} class="card-footer-item">
                                     <span>
                                         Stop
                                     </span>
                                 </a>
                                 {{ else if eq $c.State "exited" "created"}}
-                                <a href={{index $c.Names 0 | printf "%s%s%s" $.prefix "panel/start" }} class="card-footer-item">
+                                <a href={{index $c.Names 0 | printf "%s%s" "panel/start" }} class="card-footer-item">
                                     <span>
                                         Start
                                     </span>
                                 </a>
-                                <a href={{index $c.Names 0 | printf "%s%s%s" $.prefix "panel/remove" }} class="card-footer-item">
+                                <a href={{index $c.Names 0 | printf "%s%s"  "panel/remove" }} class="card-footer-item">
                                     <span>
                                         Remove
                                     </span>
@@ -153,12 +153,12 @@
                         </p>
                     </div>
                     <footer class="card-footer">
-                        <a href={{ printf "%s%s%s" $.prefix "panel/scaledown/" $img.ID }} class="card-footer-item">
+                        <a href={{ printf "%s%s"  "panel/scaledown/" $img.ID }} class="card-footer-item">
                             <span>
                                 Scale down
                             </span>
                         </a>
-                        <a href={{ printf "%s%s%s" $.prefix "panel/scaleup/" $img.ID }} class="card-footer-item">
+                        <a href={{ printf "%s%s"  "panel/scaleup/" $img.ID }} class="card-footer-item">
                             <span>
                                 Scale up
                             </span>
