@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/docker/docker/api/types"
@@ -12,6 +13,8 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/gin-gonic/gin"
 )
+
+var urlPrefix = os.Getenv("PREFIX")
 
 //swap and trim for efficiency purpose
 func remove(s []types.ImageSummary, i int) []types.ImageSummary {
@@ -37,20 +40,21 @@ func getData() ([]types.Container, []types.ImageSummary) {
 	if err != nil {
 		panic(err)
 	}
+	var curatedList []types.ImageSummary
 	// Because Docker Engine is shitty and show
-	// some random <none>:<none> images
+	// some random <none>:<none> images and i don't know how to filter them except like this
 	for i, img := range imgList {
-		if img.RepoTags[0] == "<none>:<none>" {
-			imgList = remove(imgList, i)
-		} else {
-			imgList[i].Containers = 0
+		if img.RepoTags[0] != "<none>:<none>" {
+			curatedList = append(curatedList, imgList[i])
+			//because Docker Engine is shitty and has bugs and doesn't correctly count new container of images --'
+			curatedList[len(curatedList)-1].Containers = 0
 		}
 	}
-	//because Docker Engine is shitty and has bugs and doesn't correctly count new container of images --'
+
 	for _, container := range containers {
-		for i := range imgList {
-			if container.ImageID == imgList[i].ID {
-				imgList[i].Containers++
+		for i := range curatedList {
+			if container.ImageID == curatedList[i].ID {
+				curatedList[i].Containers++
 				//because we found the container's image, we can stop the loop
 				//(Containers can't have more than one base image)
 				break
@@ -58,19 +62,18 @@ func getData() ([]types.Container, []types.ImageSummary) {
 		}
 	}
 
-	return containers, imgList
+	return containers, curatedList
 }
 
-//var urlPrefix = os.Getenv("PREFIX")
 func indexHandler(c *gin.Context) {
 	data := make(map[string]interface{})
 	containers, images := getData()
-	data["nRoutes"] = 15
+	data["nRoutes"] = 4 //who gonna check anyway ?
 	data["nContainers"] = len(containers)
 	data["containers"] = containers
 	data["nImages"] = len(images)
 	data["images"] = images
-	data["prefix"] = ""
+	data["prefix"] = urlPrefix
 	c.HTML(200, "index.tmpl", data)
 }
 func startHandler(c *gin.Context) {
@@ -80,11 +83,13 @@ func startHandler(c *gin.Context) {
 	if err != nil {
 		c.HTML(http.StatusOK, "apiFailure.tmpl", gin.H{
 			"errorMessage": err.Error(),
+			"prefix":       urlPrefix,
 		})
 	} else {
 		c.HTML(http.StatusOK, "apiSuccess.tmpl", gin.H{
 			"action": "Start",
 			"what":   id,
+			"prefix": urlPrefix,
 		})
 	}
 }
@@ -95,27 +100,31 @@ func stopHandler(c *gin.Context) {
 	if err != nil {
 		c.HTML(http.StatusOK, "apiFailure.tmpl", gin.H{
 			"errorMessage": err.Error(),
+			"prefix":       urlPrefix,
 		})
 
 	} else {
 		c.HTML(http.StatusOK, "apiSuccess.tmpl", gin.H{
 			"action": "Arret",
 			"what":   id,
+			"prefix": urlPrefix,
 		})
 	}
 }
 func removeHandler(c *gin.Context) {
 	id := c.Param("id")
-	fmt.Printf("Removing %q", id)
+	fmt.Printf("Removing %q\n", id)
 	err := cli.ContainerRemove(context.Background(), id, types.ContainerRemoveOptions{RemoveVolumes: true, RemoveLinks: false, Force: true})
 	if err != nil {
 		c.HTML(http.StatusOK, "apiFailure.tmpl", gin.H{
 			"errorMessage": err.Error(),
+			"prefix":       urlPrefix,
 		})
 	} else {
 		c.HTML(http.StatusOK, "apiSuccess.tmpl", gin.H{
 			"action": "Remove",
 			"what":   id,
+			"prefix": urlPrefix,
 		})
 	}
 
@@ -163,6 +172,7 @@ func scaleUpHandler(c *gin.Context) {
 	if sample.ImageID == "" {
 		c.HTML(http.StatusOK, "apiFailure.tmpl", gin.H{
 			"errorMessage": "No such container, to scale up we need a container to copy from. Please run docker-compose up -d first",
+			"prefix":       urlPrefix,
 		})
 		return
 	}
@@ -171,11 +181,13 @@ func scaleUpHandler(c *gin.Context) {
 	if err != nil {
 		c.HTML(http.StatusOK, "apiFailure.tmpl", gin.H{
 			"errorMessage": err.Error(),
+			"prefix":       urlPrefix,
 		})
 	} else {
 		c.HTML(http.StatusOK, "apiSuccess.tmpl", gin.H{
 			"action": "ScaleUp",
 			"what":   id,
+			"prefix": urlPrefix,
 		})
 	}
 }
@@ -199,6 +211,7 @@ func scaleDownHandler(c *gin.Context) {
 	if err != nil {
 		c.HTML(http.StatusOK, "apiFailure.tmpl", gin.H{
 			"errorMessage": err.Error(),
+			"prefix":       urlPrefix,
 		})
 		return
 
@@ -208,22 +221,24 @@ func scaleDownHandler(c *gin.Context) {
 	if err != nil {
 		c.HTML(http.StatusOK, "apiFailure.tmpl", gin.H{
 			"errorMessage": err.Error(),
+			"prefix":       urlPrefix,
 		})
 		return
 	}
 	c.HTML(http.StatusOK, "apiSuccess.tmpl", gin.H{
 		"action": "Scale down",
 		"what":   sample.Names[0],
+		"prefix": urlPrefix,
 	})
 }
 
 func lost(c *gin.Context) {
 	c.HTML(http.StatusOK, "lost.tmpl", gin.H{
-		"title": "404",
+		"title": "lost ?",
 	})
 }
 func main() {
-
+	fmt.Printf("Starting the server behind url %q\n", os.Getenv("PREFIX"))
 	r := gin.Default()
 	r.LoadHTMLGlob("templates/*.tmpl")
 	r.GET("/", indexHandler)
@@ -233,5 +248,5 @@ func main() {
 	r.GET("/panel/scaleup/:id", scaleUpHandler)
 	r.GET("/panel/scaledown/:id", scaleDownHandler)
 	r.NoRoute(lost)
-	r.Run(":9090")
+	r.Run(":80")
 }
