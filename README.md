@@ -1,3 +1,5 @@
+Here are the objectifs, for the documentation please head to [this document](./documentation.md)
+
 # Labo HTTP Infra
 
 ## Objectives
